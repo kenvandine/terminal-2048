@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Terminal-based 2048 Game for Linux
+Terminal-based 2048 Game for Linux - Colorful Edition
 Use WASD or arrow keys to move tiles
 Goal: Reach 2048!
 """
@@ -9,6 +9,47 @@ import random
 import os
 import sys
 import termios
+
+class Colors:
+    """ANSI color codes for terminal output"""
+    RESET = '\033[0m'
+    BOLD = '\033[1m'
+    DIM = '\033[2m'
+    
+    # Foreground colors
+    BLACK = '\033[30m'
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE = '\033[34m'
+    MAGENTA = '\033[35m'
+    CYAN = '\033[36m'
+    WHITE = '\033[37m'
+    BRIGHT_RED = '\033[91m'
+    BRIGHT_GREEN = '\033[92m'
+    BRIGHT_YELLOW = '\033[93m'
+    BRIGHT_BLUE = '\033[94m'
+    BRIGHT_MAGENTA = '\033[95m'
+    BRIGHT_CYAN = '\033[96m'
+    BRIGHT_WHITE = '\033[97m'
+    
+    # Background colors
+    BG_BLACK = '\033[40m'
+    BG_RED = '\033[41m'
+    BG_GREEN = '\033[42m'
+    BG_YELLOW = '\033[43m'
+    BG_BLUE = '\033[44m'
+    BG_MAGENTA = '\033[45m'
+    BG_CYAN = '\033[46m'
+    BG_WHITE = '\033[47m'
+    BG_BRIGHT_BLACK = '\033[100m'
+    BG_BRIGHT_RED = '\033[101m'
+    BG_BRIGHT_GREEN = '\033[102m'
+    BG_BRIGHT_YELLOW = '\033[103m'
+    BG_BRIGHT_BLUE = '\033[104m'
+    BG_BRIGHT_MAGENTA = '\033[105m'
+    BG_BRIGHT_CYAN = '\033[106m'
+    BG_BRIGHT_WHITE = '\033[107m'
 
 class Game2048:
     def __init__(self):
@@ -21,12 +62,28 @@ class Game2048:
         self.setup_terminal()
         self.add_random_tile()
         self.add_random_tile()
+        
+        # Color scheme for different tile values
+        self.tile_colors = {
+            0: (Colors.BG_BRIGHT_BLACK, Colors.DIM + Colors.WHITE),
+            2: (Colors.BG_WHITE, Colors.BOLD + Colors.BLACK),
+            4: (Colors.BG_BRIGHT_YELLOW, Colors.BOLD + Colors.BLACK),
+            8: (Colors.BG_YELLOW, Colors.BOLD + Colors.WHITE),
+            16: (Colors.BG_BRIGHT_MAGENTA, Colors.BOLD + Colors.WHITE),
+            32: (Colors.BG_MAGENTA, Colors.BOLD + Colors.WHITE),
+            64: (Colors.BG_BRIGHT_RED, Colors.BOLD + Colors.WHITE),
+            128: (Colors.BG_RED, Colors.BOLD + Colors.BRIGHT_YELLOW),
+            256: (Colors.BG_BRIGHT_CYAN, Colors.BOLD + Colors.BLACK),
+            512: (Colors.BG_CYAN, Colors.BOLD + Colors.WHITE),
+            1024: (Colors.BG_BRIGHT_GREEN, Colors.BOLD + Colors.BLACK),
+            2048: (Colors.BG_GREEN, Colors.BOLD + Colors.BRIGHT_YELLOW),
+            4096: (Colors.BG_BRIGHT_BLUE, Colors.BOLD + Colors.WHITE),
+            8192: (Colors.BG_BLUE, Colors.BOLD + Colors.BRIGHT_WHITE)
+        }
     
     def setup_terminal(self):
         """Setup terminal for immediate key detection"""
-        # Set terminal to cbreak mode manually using termios
         new_settings = termios.tcgetattr(self.fd)
-        # Disable canonical mode and echo
         new_settings[3] = new_settings[3] & ~(termios.ICANON | termios.ECHO)
         termios.tcsetattr(self.fd, termios.TCSADRAIN, new_settings)
     
@@ -68,6 +125,23 @@ class Game2048:
         else:
             return None
     
+    def get_tile_color(self, value):
+        """Get color scheme for a tile value"""
+        if value in self.tile_colors:
+            return self.tile_colors[value]
+        else:
+            # For values higher than 8192, use a rainbow effect
+            return (Colors.BG_BRIGHT_WHITE, Colors.BOLD + Colors.BLACK)
+    
+    def format_tile(self, value):
+        """Format a tile with appropriate colors"""
+        if value == 0:
+            bg_color, fg_color = self.get_tile_color(0)
+            return f"{bg_color}{fg_color}     {Colors.RESET}"
+        else:
+            bg_color, fg_color = self.get_tile_color(value)
+            return f"{bg_color}{fg_color}{value:^5}{Colors.RESET}"
+    
     def add_random_tile(self):
         """Add a random tile (2 or 4) to an empty position"""
         empty_cells = [(i, j) for i in range(4) for j in range(4) if self.board[i][j] == 0]
@@ -80,37 +154,47 @@ class Game2048:
         os.system('clear')
     
     def display_board(self):
-        """Display the current board state"""
+        """Display the current board state with colors"""
         self.clear_screen()
-        print("=" * 50)
-        print("🎮 2048 GAME 🎮")
-        print("=" * 50)
-        print(f"Score: {self.score}")
-        print("Use WASD or Arrow Keys • Q to quit")
-        print("-" * 50)
+        
+        # Header with gradient effect
+        print(f"{Colors.BOLD}{Colors.BRIGHT_CYAN}{'=' * 55}{Colors.RESET}")
+        print(f"{Colors.BOLD}{Colors.BRIGHT_MAGENTA}🎮 {Colors.BRIGHT_YELLOW}2048 GAME{Colors.BRIGHT_MAGENTA} 🎮{Colors.RESET}")
+        print(f"{Colors.BOLD}{Colors.BRIGHT_CYAN}{'=' * 55}{Colors.RESET}")
+        
+        # Score display
+        score_color = Colors.BRIGHT_GREEN if self.score < 1000 else Colors.BRIGHT_YELLOW if self.score < 5000 else Colors.BRIGHT_RED
+        print(f"{Colors.BOLD}Score: {score_color}{self.score}{Colors.RESET}")
+        
+        # Controls info
+        print(f"{Colors.BRIGHT_BLUE}Use {Colors.BRIGHT_WHITE}WASD{Colors.BRIGHT_BLUE} or {Colors.BRIGHT_WHITE}Arrow Keys{Colors.BRIGHT_BLUE} • {Colors.BRIGHT_RED}Q{Colors.BRIGHT_BLUE} to quit{Colors.RESET}")
+        print(f"{Colors.BRIGHT_CYAN}{'-' * 55}{Colors.RESET}")
+        
+        # Game board with colorful borders
+        border_color = Colors.BRIGHT_WHITE
+        print(f"{border_color}┌─────┬─────┬─────┬─────┐{Colors.RESET}")
         
         for i, row in enumerate(self.board):
-            print("│", end="")
+            print(f"{border_color}│{Colors.RESET}", end="")
             for cell in row:
-                if cell == 0:
-                    print("     ", end="│")
-                else:
-                    print(f"{cell:^5}", end="│")
+                print(self.format_tile(cell), end=f"{border_color}│{Colors.RESET}")
             print()
             if i < 3:
-                print("├─────┼─────┼─────┼─────┤")
-        print("└─────┴─────┴─────┴─────┘")
+                print(f"{border_color}├─────┼─────┼─────┼─────┤{Colors.RESET}")
         
+        print(f"{border_color}└─────┴─────┴─────┴─────┘{Colors.RESET}")
+        
+        # Game status messages
         if self.won and not self.game_over:
-            print("🎉 Congratulations! You reached 2048! 🎉")
-            print("Keep playing to get an even higher score!")
+            print(f"\n{Colors.BOLD}{Colors.BRIGHT_YELLOW}🎉 Congratulations! You reached 2048! 🎉{Colors.RESET}")
+            print(f"{Colors.BRIGHT_GREEN}Keep playing to get an even higher score!{Colors.RESET}")
         elif self.game_over:
-            print("💀 Game Over! No more moves available.")
-            print(f"Final Score: {self.score}")
+            print(f"\n{Colors.BOLD}{Colors.BRIGHT_RED}💀 Game Over! No more moves available.{Colors.RESET}")
+            print(f"{Colors.BRIGHT_YELLOW}Final Score: {Colors.BRIGHT_WHITE}{self.score}{Colors.RESET}")
         
-        print("-" * 50)
+        print(f"{Colors.BRIGHT_CYAN}{'-' * 55}{Colors.RESET}")
         if not self.game_over:
-            print("Press a key to move...")
+            print(f"{Colors.DIM}Press a key to move...{Colors.RESET}")
         print()  # Extra newline for better spacing
     
     def move_left(self):
@@ -191,17 +275,24 @@ class Game2048:
         
         return False
     
+    def show_welcome_screen(self):
+        """Display colorful welcome screen"""
+        self.clear_screen()
+        print(f"{Colors.BOLD}{Colors.BRIGHT_CYAN}{'=' * 60}{Colors.RESET}")
+        print(f"{Colors.BOLD}{Colors.BRIGHT_MAGENTA}🌟 {Colors.BRIGHT_YELLOW}WELCOME TO COLORFUL 2048!{Colors.BRIGHT_MAGENTA} 🌟{Colors.RESET}")
+        print(f"{Colors.BOLD}{Colors.BRIGHT_CYAN}{'=' * 60}{Colors.RESET}")
+        print(f"\n{Colors.BRIGHT_WHITE}Goal:{Colors.RESET} {Colors.BRIGHT_GREEN}Combine tiles to reach 2048!{Colors.RESET}")
+        print(f"\n{Colors.BRIGHT_WHITE}Controls:{Colors.RESET}")
+        print(f"  {Colors.BRIGHT_BLUE}W{Colors.RESET}/{Colors.BRIGHT_BLUE}↑{Colors.RESET} - Up    {Colors.BRIGHT_BLUE}S{Colors.RESET}/{Colors.BRIGHT_BLUE}↓{Colors.RESET} - Down")
+        print(f"  {Colors.BRIGHT_BLUE}A{Colors.RESET}/{Colors.BRIGHT_BLUE}←{Colors.RESET} - Left  {Colors.BRIGHT_BLUE}D{Colors.RESET}/{Colors.BRIGHT_BLUE}→{Colors.RESET} - Right")
+        print(f"  {Colors.BRIGHT_RED}Q{Colors.RESET} - Quit")
+        print(f"\n{Colors.BRIGHT_YELLOW}✨ Each tile value has its own unique color! ✨{Colors.RESET}")
+        print(f"\n{Colors.DIM}Press any key to start...{Colors.RESET}")
+    
     def play(self):
         """Main game loop"""
         try:
-            self.clear_screen()
-            print("Welcome to 2048!")
-            print("Goal: Combine tiles to reach 2048!")
-            print("Controls:")
-            print("  W/↑ - Up    S/↓ - Down")
-            print("  A/← - Left  D/→ - Right")
-            print("  Q - Quit")
-            print("\nPress any key to start...")
+            self.show_welcome_screen()
             
             # Wait for first key
             self.get_key()
@@ -209,7 +300,7 @@ class Game2048:
             while not self.game_over and self.can_move():
                 self.display_board()
                 
-                # Get user input - this will block until a key is pressed
+                # Get user input
                 key = self.get_key()
                 
                 moved = False
@@ -235,18 +326,18 @@ class Game2048:
             
             self.display_board()
             if not self.game_over:
-                print("\nThanks for playing!")
+                print(f"\n{Colors.BRIGHT_CYAN}Thanks for playing!{Colors.RESET}")
             else:
-                print("Game Over! Thanks for playing!")
+                print(f"\n{Colors.BRIGHT_YELLOW}Game Over! Thanks for playing!{Colors.RESET}")
             
-            print("Press any key to exit...")
+            print(f"{Colors.DIM}Press any key to exit...{Colors.RESET}")
             self.get_key()
                 
         except KeyboardInterrupt:
             pass
         finally:
             self.restore_terminal()
-            print("\nGame ended. Thanks for playing!")
+            print(f"\n{Colors.BRIGHT_GREEN}Game ended. Thanks for playing!{Colors.RESET}")
 
 def main():
     """Start the game"""
@@ -254,7 +345,7 @@ def main():
         game = Game2048()
         game.play()
     except KeyboardInterrupt:
-        print("\n\nGame interrupted!")
+        print(f"\n\n{Colors.BRIGHT_RED}Game interrupted!{Colors.RESET}")
     except Exception as e:
         # Make sure terminal is restored even if there's an error
         try:
@@ -262,7 +353,7 @@ def main():
                             termios.tcgetattr(sys.stdin.fileno()))
         except:
             pass
-        print(f"\nAn error occurred: {e}")
+        print(f"\n{Colors.BRIGHT_RED}An error occurred: {e}{Colors.RESET}")
     finally:
         # Ensure terminal is always restored
         try:
