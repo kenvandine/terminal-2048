@@ -388,7 +388,7 @@ class Game2048:
         print(f"  {Colors.BRIGHT_BLUE}W{Colors.RESET}/{Colors.BRIGHT_BLUE}↑{Colors.RESET} - Up    {Colors.BRIGHT_BLUE}S{Colors.RESET}/{Colors.BRIGHT_BLUE}↓{Colors.RESET} - Down")
         print(f"  {Colors.BRIGHT_BLUE}A{Colors.RESET}/{Colors.BRIGHT_BLUE}←{Colors.RESET} - Left  {Colors.BRIGHT_BLUE}D{Colors.RESET}/{Colors.BRIGHT_BLUE}→{Colors.RESET} - Right")
         print(f"  {Colors.BRIGHT_RED}Q{Colors.RESET} - Quit  {Colors.BRIGHT_MAGENTA}H{Colors.RESET} - High Scores")
-        print(f"\n{Colors.BRIGHT_YELLOW}✨ Each tile value has its own unique color! ✨{Colors.RESET}")
+        print(f"\n{Colors.BRIGHT_YELLOW}✨ 2048 is a popular puzzle game where players combine\n✨ tiles with numerical values to create a single tile\n✨ with the value of 2048.\n✨ The game requires strategic thinking and planning\n✨ to achieve the goal.{Colors.RESET}")
  
         # Show current high score if available
         if self.high_scores["scores"]:
