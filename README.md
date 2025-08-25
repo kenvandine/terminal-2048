@@ -20,8 +20,8 @@ A simple but feature-rich implementation of the classic 2048 game that runs in y
 
 1.  Clone the repository:
     ```bash
-    git clone https://github.com/your-username/your-repo-name.git
-    cd your-repo-name
+    git clone https://github.com/kenvandine/terminal-2048.git
+    cd terminal-2048
     ```
 2.  Run the game:
     ```bash
