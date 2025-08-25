@@ -1,0 +1,41 @@
+name: terminal-2048
+base: core24
+adopt-info: terminal-2048
+summary: Terminal 2048 game
+description: |
+  A simple, terminal-based version of the 2048 game.
+  Use your arrow keys or WASD to move the tiles. The goal is to create a tile
+  with the number 2048.
+
+grade: stable
+confinement: strict
+icon: icon.svg
+contact: https://github.com/kenvandine/terminal-2048/issues
+issues: https://github.com/kenvandine/terminal-2048/issues
+website: https://github.com/kenvandine/terminal-2048
+license: GPL-3.0+
+platforms:
+  all:
+    build-on: [amd64]
+    build-for: [all]
+
+parts:
+  terminal-2048:
+    plugin: python
+    source: .
+    build-packages:
+      - git
+    prime:
+      - bin/2048.py
+    override-pull: |
+      craftctl default
+      craftctl set version=$(git describe --tags --abbrev=10)
+    override-build: |
+      craftctl default
+      mkdir -p $CRAFT_PART_INSTALL/bin
+      cp 2048.py $CRAFT_PART_INSTALL/bin/
+      chmod a+x $CRAFT_PART_INSTALL/bin/2048.py
+
+apps:
+  terminal-2048:
+    command: bin/2048.py
