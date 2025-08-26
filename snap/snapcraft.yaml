@@ -1,9 +1,9 @@
 name: terminal-2048
 base: core24
 adopt-info: terminal-2048
-summary: Terminal 2048 game
+summary: Terminal 2048
 description: |
-  A simple, terminal-based version of the 2048 game, now written in Rust.
+  A simple, terminal-based version of the 2048 game.
   Use your arrow keys or WASD to move the tiles. The goal is to create a tile
   with the number 2048.
 
