@@ -26,16 +26,18 @@ parts:
     build-packages:
       - git
     prime:
-      - bin/2048.py
+      - 2048.py
+      - game/*.py
     override-pull: |
       craftctl default
       craftctl set version=$(git describe --tags --abbrev=10)
     override-build: |
       craftctl default
-      mkdir -p $CRAFT_PART_INSTALL/bin
-      cp 2048.py $CRAFT_PART_INSTALL/bin/
-      chmod a+x $CRAFT_PART_INSTALL/bin/2048.py
+      cp 2048.py $CRAFT_PART_INSTALL/
+      chmod a+x $CRAFT_PART_INSTALL/2048.py
+      mkdir -p $CRAFT_PART_INSTALL/game
+      cp -rp game/*.py $CRAFT_PART_INSTALL/game/
 
 apps:
   terminal-2048:
-    command: bin/2048.py
+    command: 2048.py
