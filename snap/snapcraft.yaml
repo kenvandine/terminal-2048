@@ -25,6 +25,8 @@ parts:
     build-packages:
       - git
       - cargo
+    organize:
+      target/release/terminal-2048: terminal-2048
     override-pull: |
       craftctl default
       craftctl set version=$(git describe --tags --abbrev=10 || git rev-parse --short HEAD)
@@ -32,8 +34,8 @@ parts:
       craftctl default
       cargo build --release --target-dir $CRAFT_PART_INSTALL/target
     prime:
-      - target/release/terminal-2048
+      - terminal-2048
 
 apps:
   terminal-2048:
-    command: target/release/terminal-2048
+    command: terminal-2048
