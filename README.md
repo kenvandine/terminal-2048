@@ -1,6 +1,6 @@
 # Terminal 2048
 
-A simple but feature-rich implementation of the classic 2048 game that runs in your terminal. This version is written in Python and uses ANSI color codes to provide a colorful and engaging gameplay experience.
+A simple but feature-rich implementation of the classic 2048 game that runs in your terminal. This version is written in Rust and uses the `crossterm` library to provide a colorful and engaging gameplay experience.
 
 ## Features
 
@@ -8,13 +8,13 @@ A simple but feature-rich implementation of the classic 2048 game that runs in y
 - **High Score Tracking**: Your top 10 high scores are saved locally in `~/.2048_high_scores.json`.
 - **Flexible Controls**: Play with either WASD or the arrow keys.
 - **Smooth Gameplay**: The game is responsive and provides a smooth experience.
-- **Cross-platform**: Runs on any system that supports Python and ANSI escape codes (Linux, macOS, and modern Windows terminals).
+- **Cross-platform**: Runs on any system that supports Rust and `crossterm` (Linux, macOS, and modern Windows terminals).
 
 ## How to Play
 
 ### Prerequisites
 
-- Python 3
+- Rust toolchain (https://rustup.rs/)
 
 ### Running the game
 
@@ -25,7 +25,7 @@ A simple but feature-rich implementation of the classic 2048 game that runs in y
     ```
 2.  Run the game:
     ```bash
-    python3 2048.py
+    cargo run --release
     ```
 
 ### Controls
