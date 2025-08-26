@@ -22,66 +22,48 @@ impl GameUI {
     }
 
     pub fn show_welcome_screen(&self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
-        execute!(
-            stdout,
-            crossterm::terminal::Clear(crossterm::terminal::ClearType::All),
-            crossterm::cursor::MoveTo(0, 0)
-        )?;
-        execute!(
-            stdout,
-            SetAttribute(Attribute::Bold),
-            SetForegroundColor(Color::Cyan),
-            Print("=".repeat(60)),
-            Print("\n"),
-            SetForegroundColor(Color::Magenta),
-            Print("🌟 "),
-            SetForegroundColor(Color::Yellow),
-            Print("TERMINAL 2048!"),
-            SetForegroundColor(Color::Magenta),
-            Print(" 🌟\n"),
-            SetForegroundColor(Color::Cyan),
-            Print("=".repeat(60)),
-            Print("\n\n"),
-            ResetColor,
-            SetForegroundColor(Color::White),
-            Print("Goal:"),
-            ResetColor,
-            SetForegroundColor(Color::Green),
-            Print(" Combine tiles to reach 2048!\n\n"),
-            ResetColor,
-            SetForegroundColor(Color::White),
-            Print("Controls:\n"),
-            ResetColor,
-            Print("  W/↑ - Up    S/↓ - Down\n"),
-            Print("  A/← - Left  D/→ - Right\n"),
-            Print("  Q - Quit  H - High Scores\n\n"),
-            SetForegroundColor(Color::Yellow),
-            Print("✨ 2048 is a popular puzzle game where players combine\n"),
-            Print("✨ tiles with numerical values to create a single tile\n"),
-            Print("✨ with the value of 2048.\n"),
-            Print("✨ The game requires strategic thinking and planning\n"),
-            Print("✨ to achieve the goal.\n\n"),
-            ResetColor,
-        )?;
+        execute!(stdout, crossterm::terminal::Clear(crossterm::terminal::ClearType::All))?;
+        let mut y = 0;
+
+        execute!(stdout, crossterm::cursor::MoveTo(0, y), SetAttribute(Attribute::Bold), SetForegroundColor(Color::Cyan), Print("=".repeat(60)), ResetColor)?;
+        y += 1;
+        execute!(stdout, crossterm::cursor::MoveTo(20, y), SetAttribute(Attribute::Bold), SetForegroundColor(Color::Yellow), Print("🌟 TERMINAL 2048! 🌟"), ResetColor)?;
+        y += 1;
+        execute!(stdout, crossterm::cursor::MoveTo(0, y), SetAttribute(Attribute::Bold), SetForegroundColor(Color::Cyan), Print("=".repeat(60)), ResetColor)?;
+        y += 2;
+
+        execute!(stdout, crossterm::cursor::MoveTo(0, y), SetForegroundColor(Color::White), Print("Goal:"), SetForegroundColor(Color::Green), Print(" Combine tiles to reach 2048!"), ResetColor)?;
+        y += 2;
+
+        execute!(stdout, crossterm::cursor::MoveTo(0, y), SetForegroundColor(Color::White), Print("Controls:"), ResetColor)?;
+        y += 1;
+        execute!(stdout, crossterm::cursor::MoveTo(2, y), Print("W/↑ - Up    S/↓ - Down"))?;
+        y += 1;
+        execute!(stdout, crossterm::cursor::MoveTo(2, y), Print("A/← - Left  D/→ - Right"))?;
+        y += 1;
+        execute!(stdout, crossterm::cursor::MoveTo(2, y), Print("Q - Quit  H - High Scores"))?;
+        y += 2;
+
+        let description = [
+            "✨ 2048 is a popular puzzle game where players combine",
+            "✨ tiles with numerical values to create a single tile",
+            "✨ with the value of 2048.",
+            "✨ The game requires strategic thinking and planning",
+            "✨ to achieve the goal.",
+        ];
+        for line in description.iter() {
+            execute!(stdout, crossterm::cursor::MoveTo(0, y), SetForegroundColor(Color::Yellow), Print(line), ResetColor)?;
+            y += 1;
+        }
+        y += 1;
 
         if let Some(high_score) = self.high_scores.scores.first() {
-            execute!(
-                stdout,
-                SetForegroundColor(Color::Cyan),
-                Print("Current High Score: "),
-                SetForegroundColor(Color::White),
-                Print(high_score.score),
-                Print("\n\n"),
-                ResetColor
-            )?;
+            let text = format!("Current High Score: {}", high_score.score);
+            execute!(stdout, crossterm::cursor::MoveTo(0, y), SetForegroundColor(Color::Cyan), Print(&text), ResetColor)?;
+            y += 2;
         }
 
-        execute!(
-            stdout,
-            SetForegroundColor(Color::DarkGrey),
-            Print("Press any key to start...\n"),
-            ResetColor
-        )?;
+        execute!(stdout, crossterm::cursor::MoveTo(0, y), SetForegroundColor(Color::DarkGrey), Print("Press any key to start..."), ResetColor)?;
 
         self.wait_for_key_press()?;
         Ok(())
@@ -132,179 +114,77 @@ impl GameUI {
     }
 
     fn draw_board(&self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
-        execute!(
-            stdout,
-            crossterm::terminal::Clear(crossterm::terminal::ClearType::All),
-            crossterm::cursor::MoveTo(0, 0)
-        )?;
-
-        let border_color = Color::Rgb {
-            r: 100,
-            g: 100,
-            b: 100,
-        };
+        execute!(stdout, crossterm::terminal::Clear(crossterm::terminal::ClearType::All))?;
+        let mut y = 0;
 
         // Header
-        execute!(
-            stdout,
-            SetAttribute(Attribute::Bold),
-            SetForegroundColor(Color::Cyan),
-            Print("=".repeat(55)),
-            Print("\n"),
-            SetForegroundColor(Color::Magenta),
-            Print("🎮 "),
-            SetForegroundColor(Color::Yellow),
-            Print("2048 GAME"),
-            SetForegroundColor(Color::Magenta),
-            Print(" 🎮\n"),
-            SetForegroundColor(Color::Cyan),
-            Print("=".repeat(55)),
-            Print("\n"),
-            ResetColor
-        )?;
+        execute!(stdout, crossterm::cursor::MoveTo(0, y), SetAttribute(Attribute::Bold), SetForegroundColor(Color::Cyan), Print("=".repeat(55)), ResetColor)?;
+        y += 1;
+        execute!(stdout, crossterm::cursor::MoveTo(20, y), SetAttribute(Attribute::Bold), SetForegroundColor(Color::Yellow), Print("🎮 2048 GAME 🎮"), ResetColor)?;
+        y += 1;
+        execute!(stdout, crossterm::cursor::MoveTo(0, y), SetAttribute(Attribute::Bold), SetForegroundColor(Color::Cyan), Print("=".repeat(55)), ResetColor)?;
+        y += 2;
 
         // Score
-        let score_color = if self.logic.score < 1000 {
-            Color::Green
-        } else if self.logic.score < 5000 {
-            Color::Yellow
-        } else {
-            Color::Red
-        };
-        execute!(
-            stdout,
-            SetAttribute(Attribute::Bold),
-            Print("Score: "),
-            SetForegroundColor(score_color),
-            Print(self.logic.score),
-            ResetColor
-        )?;
+        let score_text = format!("Score: {}", self.logic.score);
+        execute!(stdout, crossterm::cursor::MoveTo(0, y), SetAttribute(Attribute::Bold), SetForegroundColor(Color::Green), Print(&score_text), ResetColor)?;
         if let Some(high_score) = self.high_scores.scores.first() {
-            execute!(
-                stdout,
-                SetAttribute(Attribute::Bold),
-                Print("  |  High Score: "),
-                SetForegroundColor(Color::Cyan),
-                Print(high_score.score),
-                ResetColor
-            )?;
+            let high_score_text = format!("  |  High Score: {}", high_score.score);
+            execute!(stdout, crossterm::cursor::MoveTo(score_text.chars().count() as u16, y), SetAttribute(Attribute::Bold), SetForegroundColor(Color::Cyan), Print(&high_score_text), ResetColor)?;
         }
-        execute!(stdout, Print("\n"))?;
+        y += 1;
 
         // Instructions
-        execute!(
-            stdout,
-            SetForegroundColor(Color::Blue),
-            Print("Use "),
-            SetForegroundColor(Color::White),
-            Print("WASD"),
-            SetForegroundColor(Color::Blue),
-            Print(" or "),
-            SetForegroundColor(Color::White),
-            Print("Arrow Keys"),
-            SetForegroundColor(Color::Blue),
-            Print(" • "),
-            SetForegroundColor(Color::Red),
-            Print("Q"),
-            SetForegroundColor(Color::Blue),
-            Print(" to quit • "),
-            SetForegroundColor(Color::Magenta),
-            Print("H"),
-            SetForegroundColor(Color::Blue),
-            Print(" for high scores\n"),
-            SetForegroundColor(Color::Cyan),
-            Print("-".repeat(55)),
-            Print("\n"),
-            ResetColor
-        )?;
+        execute!(stdout, crossterm::cursor::MoveTo(0, y), Print("Use WASD or Arrow Keys • Q to quit • H for high scores"))?;
+        y += 1;
+        execute!(stdout, crossterm::cursor::MoveTo(0, y), SetForegroundColor(Color::Cyan), Print("-".repeat(55)), ResetColor)?;
+        y += 1;
 
         // Board
-        execute!(
-            stdout,
-            SetForegroundColor(border_color),
-            Print("┌─────┬─────┬─────┬─────┐\n"),
-            ResetColor
-        )?;
-        for (r_idx, row) in self.logic.board.iter().enumerate() {
-            execute!(
-                stdout,
-                SetForegroundColor(border_color),
-                Print("│"),
-                ResetColor
-            )?;
-            for cell in row.iter() {
-                let (fg, bg) = self.get_tile_colors(*cell);
-                execute!(
-                    stdout,
-                    SetBackgroundColor(bg),
-                    SetForegroundColor(fg),
-                    Print(format!(
-                        "{:^5}",
-                        if *cell == 0 {
-                            "".to_string()
-                        } else {
-                            cell.to_string()
-                        }
-                    )),
-                    ResetColor,
-                    SetForegroundColor(border_color),
-                    Print("│"),
-                    ResetColor
-                )?;
-            }
-            execute!(stdout, Print("\n"))?;
-            if r_idx < 3 {
-                execute!(
-                    stdout,
-                    SetForegroundColor(border_color),
-                    Print("├─────┼─────┼─────┼─────┤\n"),
-                    ResetColor
-                )?;
+        let board_y = y;
+        let board_lines = [
+            "┌─────┬─────┬─────┬─────┐",
+            "│     │     │     │     │",
+            "├─────┼─────┼─────┼─────┤",
+            "│     │     │     │     │",
+            "├─────┼─────┼─────┼─────┤",
+            "│     │     │     │     │",
+            "├─────┼─────┼─────┼─────┤",
+            "│     │     │     │     │",
+            "└─────┴─────┴─────┴─────┘",
+        ];
+        for (i, line) in board_lines.iter().enumerate() {
+            execute!(stdout, crossterm::cursor::MoveTo(15, board_y + i as u16), Print(line))?;
+        }
+
+        for r in 0..4 {
+            for c in 0..4 {
+                if self.logic.board[r][c] != 0 {
+                    let (fg, bg) = self.get_tile_colors(self.logic.board[r][c]);
+                    let text = self.logic.board[r][c].to_string();
+                    let tile_y = board_y + 1 + (r * 2) as u16;
+                    let tile_x = 16 + c as u16 * 6;
+                    execute!(stdout, crossterm::cursor::MoveTo(tile_x, tile_y), SetBackgroundColor(bg), SetForegroundColor(fg), Print(format!("{:^5}", text)), ResetColor)?;
+                }
             }
         }
-        execute!(
-            stdout,
-            SetForegroundColor(border_color),
-            Print("└─────┴─────┴─────┴─────┘\n"),
-            ResetColor
-        )?;
+        y += board_lines.len() as u16;
 
         // Footer
         if self.logic.won && !self.logic.game_over {
-            execute!(
-                stdout,
-                SetAttribute(Attribute::Bold),
-                SetForegroundColor(Color::Yellow),
-                Print("\n🎉 Congratulations! You reached 2048! 🎉\n"),
-                SetForegroundColor(Color::Green),
-                Print("Keep playing to get an even higher score!\n"),
-                ResetColor
-            )?;
+            execute!(stdout, crossterm::cursor::MoveTo(0, y), SetAttribute(Attribute::Bold), SetForegroundColor(Color::Yellow), Print("🎉 Congratulations! You reached 2048! 🎉"), ResetColor)?;
+            y += 1;
+            execute!(stdout, crossterm::cursor::MoveTo(0, y), SetForegroundColor(Color::Green), Print("Keep playing to get an even higher score!"), ResetColor)?;
         } else if self.logic.game_over {
-            execute!(
-                stdout,
-                SetAttribute(Attribute::Bold),
-                SetForegroundColor(Color::Red),
-                Print("\n💀 Game Over! No more moves available.\n"),
-                ResetColor
-            )?;
+            execute!(stdout, crossterm::cursor::MoveTo(0, y), SetAttribute(Attribute::Bold), SetForegroundColor(Color::Red), Print("💀 Game Over! No more moves available."), ResetColor)?;
         }
+        y += 2;
 
-        execute!(
-            stdout,
-            SetForegroundColor(Color::Cyan),
-            Print("-".repeat(55)),
-            Print("\n"),
-            ResetColor
-        )?;
+        execute!(stdout, crossterm::cursor::MoveTo(0, y), SetForegroundColor(Color::Cyan), Print("-".repeat(55)), ResetColor)?;
+        y += 1;
 
         if !self.logic.game_over {
-            execute!(
-                stdout,
-                SetForegroundColor(Color::DarkGrey),
-                Print("Press a key to move...\n"),
-                ResetColor
-            )?;
+            execute!(stdout, crossterm::cursor::MoveTo(0, y), SetForegroundColor(Color::DarkGrey), Print("Press a key to move..."), ResetColor)?;
         }
 
         Ok(())
@@ -328,30 +208,16 @@ impl GameUI {
     }
 
     fn show_final_score_screen(&mut self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
-        execute!(
-            stdout,
-            crossterm::terminal::Clear(crossterm::terminal::ClearType::All),
-            crossterm::cursor::MoveTo(0, 0)
-        )?;
+        execute!(stdout, crossterm::terminal::Clear(crossterm::terminal::ClearType::All))?;
+        let mut y = 0;
 
-        execute!(
-            stdout,
-            SetAttribute(Attribute::Bold),
-            SetForegroundColor(Color::Yellow),
-            Print("🎮 GAME OVER 🎮\n"),
-            ResetColor
-        )?;
+        execute!(stdout, crossterm::cursor::MoveTo(0, y), SetAttribute(Attribute::Bold), SetForegroundColor(Color::Yellow), Print("🎮 GAME OVER 🎮"), ResetColor)?;
+        y += 2;
 
         let is_new_high = scores::is_new_high_score(&self.high_scores, self.logic.score);
         if is_new_high {
             scores::add_high_score(&mut self.high_scores, self.logic.score, &self.logic.board);
-            execute!(
-                stdout,
-                SetAttribute(Attribute::Bold),
-                SetForegroundColor(Color::Green),
-                Print("\nCongratulations! You've got a new high score!\n"),
-                ResetColor
-            )?;
+            execute!(stdout, crossterm::cursor::MoveTo(0, y), SetAttribute(Attribute::Bold), SetForegroundColor(Color::Green), Print("Congratulations! You've got a new high score!"), ResetColor)?;
         }
 
         self.show_high_scores(stdout)?;
@@ -360,97 +226,43 @@ impl GameUI {
     }
 
     fn show_high_scores(&self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
-        execute!(
-            stdout,
-            crossterm::terminal::Clear(crossterm::terminal::ClearType::All),
-            crossterm::cursor::MoveTo(0, 0)
-        )?;
+        execute!(stdout, crossterm::terminal::Clear(crossterm::terminal::ClearType::All))?;
+        let mut y = 0;
 
-        execute!(
-            stdout,
-            SetAttribute(Attribute::Bold),
-            SetForegroundColor(Color::Yellow),
-            Print("🏆 HIGH SCORES 🏆\n"),
-            ResetColor
-        )?;
-        execute!(
-            stdout,
-            SetForegroundColor(Color::Cyan),
-            Print("=".repeat(65)),
-            Print("\n"),
-            ResetColor
-        )?;
+        execute!(stdout, crossterm::cursor::MoveTo(0, y), SetAttribute(Attribute::Bold), SetForegroundColor(Color::Yellow), Print("🏆 HIGH SCORES 🏆"), ResetColor)?;
+        y += 1;
+        execute!(stdout, crossterm::cursor::MoveTo(0, y), SetForegroundColor(Color::Cyan), Print("=".repeat(65)), ResetColor)?;
+        y += 1;
 
         if self.high_scores.scores.is_empty() {
-            execute!(
-                stdout,
-                SetForegroundColor(Color::DarkGrey),
-                Print("No high scores yet. Be the first!\n"),
-                ResetColor
-            )?;
+            execute!(stdout, crossterm::cursor::MoveTo(0, y), SetForegroundColor(Color::DarkGrey), Print("No high scores yet. Be the first!"), ResetColor)?;
         } else {
-            execute!(
-                stdout,
-                SetAttribute(Attribute::Bold),
-                SetForegroundColor(Color::White),
-                Print(format!(
-                    "{:<4} {:<8} {:<12} {:<19}\n",
-                    "Rank", "Score", "Highest Tile", "Date"
-                )),
-                ResetColor
-            )?;
-            execute!(
-                stdout,
-                SetForegroundColor(Color::Cyan),
-                Print("-".repeat(65)),
-                Print("\n"),
-                ResetColor
-            )?;
+            let header = format!("{:<4} {:<8} {:<12} {:<19}", "Rank", "Score", "Highest Tile", "Date");
+            execute!(stdout, crossterm::cursor::MoveTo(0, y), SetAttribute(Attribute::Bold), SetForegroundColor(Color::White), Print(header), ResetColor)?;
+            y += 1;
+            execute!(stdout, crossterm::cursor::MoveTo(0, y), SetForegroundColor(Color::Cyan), Print("-".repeat(65)), ResetColor)?;
+            y += 1;
+
             for (i, entry) in self.high_scores.scores.iter().enumerate() {
-                let rank_color = if i < 3 {
-                    Color::Yellow
-                } else {
-                    Color::White
-                };
-                let tile_color = if entry.highest_tile >= 2048 {
-                    Color::Green
-                } else {
-                    Color::Cyan
-                };
-                execute!(
-                    stdout,
-                    SetForegroundColor(rank_color),
-                    Print(format!("{:<4}", i + 1)),
-                    ResetColor,
-                    Print(" "),
-                    SetForegroundColor(Color::White),
-                    Print(format!("{:<8}", entry.score)),
-                    ResetColor,
-                    Print(" "),
-                    SetForegroundColor(tile_color),
-                    Print(format!("{:<12}", entry.highest_tile)),
-                    ResetColor,
-                    Print(" "),
-                    SetForegroundColor(Color::DarkGrey),
-                    Print(format!("{:<19}", entry.date)),
-                    ResetColor,
-                    Print("\n")
-                )?;
+                let rank_color = if i < 3 { Color::Yellow } else { Color::White };
+                let tile_color = if entry.highest_tile >= 2048 { Color::Green } else { Color::Cyan };
+
+                let rank = format!("{:<4}", i + 1);
+                let score = format!("{:<8}", entry.score);
+                let tile = format!("{:<12}", entry.highest_tile);
+                let date = format!("{:<19}", entry.date);
+
+                execute!(stdout, crossterm::cursor::MoveTo(0, y), SetForegroundColor(rank_color), Print(&rank), ResetColor)?;
+                execute!(stdout, crossterm::cursor::MoveTo(5, y), SetForegroundColor(Color::White), Print(&score), ResetColor)?;
+                execute!(stdout, crossterm::cursor::MoveTo(14, y), SetForegroundColor(tile_color), Print(&tile), ResetColor)?;
+                execute!(stdout, crossterm::cursor::MoveTo(27, y), SetForegroundColor(Color::DarkGrey), Print(&date), ResetColor)?;
+                y += 1;
             }
         }
-        execute!(
-            stdout,
-            SetForegroundColor(Color::Cyan),
-            Print("=".repeat(65)),
-            Print("\n"),
-            ResetColor
-        )?;
-        execute!(
-            stdout,
-            SetForegroundColor(Color::DarkGrey),
-            Print("\nPress any key to continue...\n"),
-            ResetColor
-        )?;
+        y += 1;
+        execute!(stdout, crossterm::cursor::MoveTo(0, y), SetForegroundColor(Color::Cyan), Print("=".repeat(65)), ResetColor)?;
+        y += 2;
+        execute!(stdout, crossterm::cursor::MoveTo(0, y), SetForegroundColor(Color::DarkGrey), Print("Press any key to continue..."), ResetColor)?;
 
         self.wait_for_key_press()?;
         Ok(())
