@@ -8,6 +8,11 @@ use crossterm::{
     style::{Attribute, Color, Print, ResetColor, SetAttribute, SetBackgroundColor, SetForegroundColor},
 };
 
+pub enum HighScoreAction {
+    Continue,
+    Quit,
+}
+
 pub struct GameUI {
     logic: GameLogic,
     high_scores: HighScores,
@@ -80,7 +85,9 @@ impl GameUI {
             self.draw_board(&mut stdout)?;
 
             if self.logic.game_over {
-                self.show_final_score_screen(&mut stdout)?;
+                if let HighScoreAction::Quit = self.show_final_score_screen(&mut stdout)? {
+                    break;
+                }
                 self.logic = GameLogic::new();
                 self.show_welcome_screen(&mut stdout)?;
                 continue;
@@ -93,7 +100,9 @@ impl GameUI {
                     KeyCode::Char('a') | KeyCode::Left => self.logic.move_left(),
                     KeyCode::Char('d') | KeyCode::Right => self.logic.move_right(),
                     KeyCode::Char('h') => {
-                        self.show_high_scores(&mut stdout)?;
+                        if let HighScoreAction::Quit = self.show_high_scores(&mut stdout)? {
+                            break;
+                        }
                         false
                     }
                     KeyCode::Char('q') => break,
@@ -209,7 +218,7 @@ impl GameUI {
         }
     }
 
-    fn show_final_score_screen(&mut self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
+    fn show_final_score_screen(&mut self, stdout: &mut std::io::Stdout) -> std::io::Result<HighScoreAction> {
         execute!(stdout, crossterm::terminal::Clear(crossterm::terminal::ClearType::All))?;
         let mut y = 0;
 
@@ -222,12 +231,10 @@ impl GameUI {
             execute!(stdout, crossterm::cursor::MoveTo(0, y), SetAttribute(Attribute::Bold), SetForegroundColor(Color::Green), Print("Congratulations! You've got a new high score!"), ResetColor)?;
         }
 
-        self.show_high_scores(stdout)?;
-
-        Ok(())
+        self.show_high_scores(stdout)
     }
 
-    fn show_high_scores(&self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
+    fn show_high_scores(&self, stdout: &mut std::io::Stdout) -> std::io::Result<HighScoreAction> {
         execute!(stdout, crossterm::terminal::Clear(crossterm::terminal::ClearType::All))?;
         let mut y = 0;
 
@@ -264,10 +271,16 @@ impl GameUI {
         y += 1;
         execute!(stdout, crossterm::cursor::MoveTo(0, y), SetForegroundColor(Color::Cyan), Print("=".repeat(65)), ResetColor)?;
         y += 2;
-        execute!(stdout, crossterm::cursor::MoveTo(0, y), SetForegroundColor(Color::DarkGrey), Print("Press any key to continue..."), ResetColor)?;
+        execute!(stdout, crossterm::cursor::MoveTo(0, y), SetForegroundColor(Color::DarkGrey), Print("Press 'Q' to quit, or any other key to continue..."), ResetColor)?;
 
-        self.wait_for_key_press()?;
-        Ok(())
+        loop {
+            if let Event::Key(key_event) = event::read()? {
+                match key_event.code {
+                    KeyCode::Char('q') | KeyCode::Char('Q') => return Ok(HighScoreAction::Quit),
+                    _ => return Ok(HighScoreAction::Continue),
+                }
+            }
+        }
     }
 
     fn wait_for_key_press(&self) -> std::io::Result<()> {
