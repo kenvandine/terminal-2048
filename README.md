@@ -65,3 +65,7 @@ Press a key to move...
 ## License
 
 This project is licensed under the GNU General Public License v3.0. See the [LICENSE](LICENSE) file for details.
+
+## Fun Facts
+
+This project has been a fun experiment with vibe coding and Jules.
