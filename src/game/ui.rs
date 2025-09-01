@@ -81,7 +81,9 @@ impl GameUI {
 
             if self.logic.game_over {
                 self.show_final_score_screen(&mut stdout)?;
-                break;
+                self.logic = GameLogic::new();
+                self.show_welcome_screen(&mut stdout)?;
+                continue;
             }
 
             if let Event::Key(key_event) = event::read()? {
