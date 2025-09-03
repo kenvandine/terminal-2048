@@ -8,12 +8,25 @@ use crossterm::{
     style::{Attribute, Color, Print, ResetColor, SetAttribute, SetBackgroundColor, SetForegroundColor},
 };
 
+/// Manages the game's user interface and main loop.
+///
+/// This struct is responsible for rendering the game board, handling user input,
+/// and orchestrating the overall flow of the game, including welcome screens,
+/// game over screens, and high score displays.
 pub struct GameUI {
     logic: GameLogic,
     high_scores: HighScores,
 }
 
 impl GameUI {
+    /// Creates a new `GameUI` instance.
+    ///
+    /// This initializes a new game by creating a `GameLogic` instance and
+    /// loading any existing high scores.
+    ///
+    /// # Returns
+    ///
+    /// A new `GameUI` instance.
     pub fn new() -> Self {
         Self {
             logic: GameLogic::new(),
@@ -21,6 +34,18 @@ impl GameUI {
         }
     }
 
+    /// Displays the welcome screen.
+    ///
+    /// This screen shows the game title, instructions, and a brief description.
+    /// It waits for the user to press any key before proceeding.
+    ///
+    /// # Arguments
+    ///
+    /// * `stdout` - A mutable reference to the standard output stream.
+    ///
+    /// # Returns
+    ///
+    /// An `io::Result` indicating the outcome of the operation.
     pub fn show_welcome_screen(&self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
         execute!(stdout, crossterm::terminal::Clear(crossterm::terminal::ClearType::All))?;
         let mut y = 0;
@@ -69,6 +94,15 @@ impl GameUI {
         Ok(())
     }
 
+    /// Starts and runs the main game loop.
+    ///
+    /// This function sets up the terminal, enters the alternate screen, and
+    /// listens for user input to control the game. The loop continues until
+    /// the user quits.
+    ///
+    /// # Returns
+    ///
+    /// An `io::Result` indicating the outcome of the operation.
     pub fn run(&mut self) -> std::io::Result<()> {
         let mut stdout = stdout();
         execute!(stdout, EnterAlternateScreen)?;
@@ -115,6 +149,17 @@ impl GameUI {
         Ok(())
     }
 
+    /// Draws the game board and all UI elements to the terminal.
+    ///
+    /// This includes the header, score, instructions, and the grid of tiles.
+    ///
+    /// # Arguments
+    ///
+    /// * `stdout` - A mutable reference to the standard output stream.
+    ///
+    /// # Returns
+    ///
+    /// An `io::Result` indicating the outcome of the operation.
     fn draw_board(&self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
         execute!(stdout, crossterm::terminal::Clear(crossterm::terminal::ClearType::All))?;
         let mut y = 0;
@@ -192,6 +237,15 @@ impl GameUI {
         Ok(())
     }
 
+    /// Determines the foreground and background colors for a given tile value.
+    ///
+    /// # Arguments
+    ///
+    /// * `value` - The value of the tile.
+    ///
+    /// # Returns
+    ///
+    /// A tuple containing the `(foreground_color, background_color)`.
     fn get_tile_colors(&self, value: u16) -> (Color, Color) {
         match value {
             2 => (Color::Black, Color::White),
@@ -209,6 +263,18 @@ impl GameUI {
         }
     }
 
+    /// Displays the final score screen when the game is over.
+    ///
+    /// This screen shows a "Game Over" message and checks if the player has
+    /// achieved a new high score.
+    ///
+    /// # Arguments
+    ///
+    /// * `stdout` - A mutable reference to the standard output stream.
+    ///
+    /// # Returns
+    ///
+    /// An `io::Result` indicating the outcome of the operation.
     fn show_final_score_screen(&mut self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
         execute!(stdout, crossterm::terminal::Clear(crossterm::terminal::ClearType::All))?;
         let mut y = 0;
@@ -227,6 +293,18 @@ impl GameUI {
         Ok(())
     }
 
+    /// Displays the high scores screen.
+    ///
+    /// This screen lists the top 10 high scores, including the rank, score,
+    /// highest tile achieved, and the date.
+    ///
+    /// # Arguments
+    ///
+    /// * `stdout` - A mutable reference to the standard output stream.
+    ///
+    /// # Returns
+    ///
+    /// An `io::Result` indicating the outcome of the operation.
     fn show_high_scores(&self, stdout: &mut std::io::Stdout) -> std::io::Result<()> {
         execute!(stdout, crossterm::terminal::Clear(crossterm::terminal::ClearType::All))?;
         let mut y = 0;
@@ -270,6 +348,13 @@ impl GameUI {
         Ok(())
     }
 
+    /// Waits for a single key press event from the user.
+    ///
+    /// This function blocks until any key is pressed.
+    ///
+    /// # Returns
+    ///
+    /// An `io::Result` indicating the outcome of the operation.
     fn wait_for_key_press(&self) -> std::io::Result<()> {
         loop {
             if let Event::Key(_) = event::read()? {
