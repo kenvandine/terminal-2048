@@ -26,7 +26,8 @@ parts:
       - git
       - cargo
     organize:
-      target/release/terminal-2048: terminal-2048
+      target/release/terminal-2048: bin/terminal-2048
+      snap/gui/terminal-2048.desktop: usr/share/applications/terminal-2048.desktop
     override-pull: |
       craftctl default
       craftctl set version=$(git describe --tags --abbrev=10 || git rev-parse --short HEAD)
@@ -34,8 +35,10 @@ parts:
       craftctl default
       cargo build --release --target-dir $CRAFT_PART_INSTALL/target
     prime:
-      - terminal-2048
+      - bin/terminal-2048
+      - usr/share/applications/terminal-2048.desktop
 
 apps:
   terminal-2048:
-    command: terminal-2048
+    command: bin/terminal-2048
+    desktop: usr/share/applications/terminal-2048.desktop
